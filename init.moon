@@ -36,6 +36,7 @@ getIndentation = (line) ->
 	i
 
 deserialize = (lines, index) ->
+	return {} if #lines == 0
 	first = lines[index]
 	indentation = getIndentation(first)
 	obj = {}
