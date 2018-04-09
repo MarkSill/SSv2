@@ -81,7 +81,7 @@ deserialize = (lines, index) ->
 				lastKey = key
 				obj[key] = value
 		i += 1
-	obj, #lines
+	obj, #lines + 1
 
 serialize = nil
 
