@@ -49,10 +49,10 @@ deserialize = (lines, index) ->
 		comment = line\match(".*()//")
 		if comment
 			line = line\sub(1, comment - 1)
+		line = trim(line)
 		if line\len! == 0
 			i += 1
 			continue
-		line = trim(line)
 
 		if ind < indentation
 			return obj, i
