@@ -13,6 +13,11 @@ starts = (str, start) -> str\sub(1, start\len!) == start
 
 trim = (str) -> (str\gsub("^%s*(.-)%s*$", "%1"))
 
+contains = (t, value) ->
+	for v in *t
+		return true if v == value
+	false
+
 evaluateValue = (str, line) ->
 	n = tonumber(str)
 	return n unless n == nil
@@ -97,7 +102,7 @@ printTable = (obj, keys, indentation, mini, tables={}, ignoreRecursion, ignoreMe
 				numeric += 1
 				k = nil
 		if type(v) == "table"
-			if table.contains(tables, v)
+			if contains(tables, v)
 				if ignoreRecursion
 					table.insert(tables, v)
 					continue
@@ -106,7 +111,6 @@ printTable = (obj, keys, indentation, mini, tables={}, ignoreRecursion, ignoreMe
 				table.insert(tables, v)
 			-- Table is copied so if a table is referenced elsewhere in the structure (but not a child), it can still be printed out.
 			str, t = serialize(v, indentation + 1, mini, table.copy(tables, false), false, ignoreRecursion, ignoreMetaValues)
-			print(str, t)
 			if str\len! == 0
 				continue
 			if t == 0 or str\len! == 0
