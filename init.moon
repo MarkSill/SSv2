@@ -83,19 +83,38 @@ deserialize = (lines, index) ->
 		i += 1
 	obj, #lines + 1
 
-serialize = nil
+local serialize
 
-printTable = (obj, keys, indentation, mini) ->
+printTable = (obj, keys, indentation, mini, tables={}, ignoreRecursion, ignoreMetaValues) ->
 	outStr = ""
 	numeric = 1
+	total = 0
 	for k in *keys
+		continue if ignoreMetaValues and starts(k, "__")
 		v = obj[k]
 		if type(k) == "number"
 			if k == numeric
 				numeric += 1
 				k = nil
 		if type(v) == "table"
-			v = "\n" .. serialize(v, indentation + 1, mini)
+			if table.contains(tables, v)
+				if ignoreRecursion
+					table.insert(tables, v)
+					continue
+				error("recursion in serialization")
+			else
+				table.insert(tables, v)
+			-- Table is copied so if a table is referenced elsewhere in the structure (but not a child), it can still be printed out.
+			str, t = serialize(v, indentation + 1, mini, table.copy(tables, false), false, ignoreRecursion, ignoreMetaValues)
+			print(str, t)
+			if str\len! == 0
+				continue
+			if t == 0 or str\len! == 0
+				outStr ..= "{}"
+			else
+				outStr ..= "\n#{str}"
+		elseif type(v) == "function"
+			continue
 		str = ""
 		for i = 1, indentation do str ..= "\t"
 		if k == nil
@@ -105,12 +124,12 @@ printTable = (obj, keys, indentation, mini) ->
 			str ..= "#{k}:"
 			str ..= " " unless mini
 		str ..= tostring(v)
-		str = str
 		str = "\n" .. str if outStr\len! ~= 0
 		outStr ..= str
-	outStr
+		total += 1
+	outStr, total
 
-serialize = (obj, indentation, mini, root=false) ->
+serialize = (obj, indentation, mini, tables, root=false, ignoreRecursion, ignoreMetaValues) ->
 	outStr = ""
 	numberKeys, stringKeys = {}, {}
 	for k, _ in pairs obj
@@ -120,9 +139,9 @@ serialize = (obj, indentation, mini, root=false) ->
 			table.insert(stringKeys, k)
 	table.sort(numberKeys)
 	table.sort(stringKeys)
-	outStr ..= printTable(obj, numberKeys, indentation, mini)
+	outStr ..= printTable(obj, numberKeys, indentation, mini, tables, ignoreRecursion, ignoreMetaValues)
 	outStr ..= "\n" unless outStr\len! == 0
-	outStr ..= printTable(obj, stringKeys, indentation, mini)
+	outStr ..= printTable(obj, stringKeys, indentation, mini, tables, ignoreRecursion, ignoreMetaValues)
 	outStr ..= "\n" unless mini or not root
 	outStr
 
@@ -130,7 +149,7 @@ SSv2.deserialize = (str) ->
 	lines = split(str, "\n")
 	(deserialize(lines, 1))
 
-SSv2.serialize = (obj, mini=false) ->
-	serialize(obj, 0, mini, true)
+SSv2.serialize = (obj, mini=false, ignoreRecursion=false, ignoreMetaValues=true) ->
+	serialize(obj, 0, mini, nil, true, ignoreRecursion, ignoreMetaValues)
 
 SSv2
