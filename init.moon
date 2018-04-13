@@ -81,8 +81,10 @@ deserialize = (lines, index) ->
 				indexCount += 1
 			else
 				sections = split(line, ":")
-				key = evaluateValue(trim(table.remove(sections, 1), i))
-				value = evaluateValue(trim(table.concat(sections, ":")), i)
+				key = table.remove(sections, 1)
+				value = line\sub(key\len! + 2)
+				key = evaluateValue(trim(key, i))
+				value = evaluateValue(trim(value), i)
 				lastKey = key
 				obj[key] = value
 		i += 1
