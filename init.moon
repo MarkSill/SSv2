@@ -29,6 +29,7 @@ evaluateValue = (str, line) ->
 		error("character is not one character: line #{line}") if str\len! ~= 1
 	elseif starts(str, "\"")
 		str = str\sub(2, str\len! - 1)
+	str = str\gsub("\\n", "\n")
 	str
 
 serializeValue = (value) -> tostring(value)
