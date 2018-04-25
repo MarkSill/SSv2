@@ -78,7 +78,7 @@ deserialize = (lines, index) ->
 				line = trim(line\sub(2))
 				lastKey = nil
 				lastKey = indexCount if line\len! == 0
-				obj[indexCount] = line
+				obj[indexCount] = evaluateValue(line)
 				indexCount += 1
 			else
 				sections = split(line, ":")
