@@ -3,6 +3,9 @@ SaveStuff v2 (SSv2) is a new version of my file format SaveStuff (https://github
 
 SSv2 is a simple file format that combines YAML-like syntax with Lua's table structure, allowing for both arrays and hashes to coexist.
 
+## Other Libraries
+Node: https://github.com/MarkSill/node-ssv2
+
 ## Example File
 Input file:
 ```ssv2
